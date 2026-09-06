@@ -1,0 +1,43 @@
+# Build output
+bin/
+obj/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Visual Studio / VS Code user settings
+.vs/
+*.user
+*.suo
+.vscode/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Test results and coverage
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+secrets.json
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper.user
