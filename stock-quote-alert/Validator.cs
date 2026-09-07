@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿namespace stock_quote_alert;
+using System.Globalization;
 public class StockPriceAlert
 {
     public required string Ticker { get; init; }
