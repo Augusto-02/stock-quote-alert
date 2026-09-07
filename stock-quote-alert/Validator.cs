@@ -1,12 +1,19 @@
 ﻿namespace stock_quote_alert;
+
 using System.Globalization;
+
 public class StockPriceAlert
 {
     public required string Ticker { get; init; }
-    public required decimal BuyPriceReference {get; init;}
+    public required decimal BuyPriceReference { get; init; }
     public required decimal SellPriceReference { get; init; }
 
-    public bool AlreadySentEmail { get; private set; } = false;
+    public bool AlreadySentAlert { get; private set; } = false;
+
+    public void MarkAlertSent(bool alert)
+    {
+        AlreadySentAlert = alert;
+    }
 }
 
 public static class StockPriceAlertParser
@@ -53,7 +60,6 @@ public static class StockPriceAlertParser
                     BuyPriceReference = buyPrice
                 });
             }
-
         }
 
         if (errorsList.Count == 0)
