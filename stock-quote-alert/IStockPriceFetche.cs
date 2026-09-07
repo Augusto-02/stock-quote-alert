@@ -1,6 +1,6 @@
 ﻿namespace stock_quote_alert;
 
-public interface IStockPriceFetche
+public interface IStockPriceFetcher
 {
-    decimal GetPrice(string symbol);
+    Task<decimal> GetPriceAsync(string symbol);
 }
