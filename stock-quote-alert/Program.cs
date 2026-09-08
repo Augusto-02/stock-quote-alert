@@ -9,10 +9,10 @@ class Program
     static async Task Main(string[] args)
     {
         DotNetEnv.Env.Load("Config/.env");
-        ApiConfig environmentVariables;
+        AppConfig environmentVariables;
         try
         {
-            environmentVariables = EnvironmentSettingsLoader.LoadApiSettings();
+            environmentVariables = EnvironmentSettingsLoader.LoadSettings();
         }
         catch (InvalidOperationException error)
         {
@@ -32,17 +32,18 @@ class Program
             return;
         }
 
-        HttpClient httpClient = new HttpClient
+        using HttpClient httpClient = new HttpClient
         {
-            BaseAddress = new Uri(environmentVariables.PriceApiUrl),
+            BaseAddress = new Uri(environmentVariables.Api.PriceApiUrl),
             Timeout = TimeSpan.FromSeconds(30)
         };
         httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", environmentVariables.ApiToken);
+            new AuthenticationHeaderValue("Bearer", environmentVariables.Api.ApiToken);
         IStockPriceFetcher fetcher =
             new BrapiStockPriceFetcher(httpClient);
+        IAlertService alertService = new EmailAlertService(environmentVariables.Smtp);
         StockPriceAlertService service =
-            new StockPriceAlertService(fetcher, environmentVariables.PollingIntervalSeconds);
+            new StockPriceAlertService(fetcher, alertService ,environmentVariables.Api.PollingIntervalSeconds);
         await service.MonitorAlertsAsync(requestData);
     }
 }
