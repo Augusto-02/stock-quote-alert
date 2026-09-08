@@ -1,12 +1,13 @@
 ﻿namespace stock_quote_alert.Config;
 using System.Globalization;
 
-public class EnvironmentSettingsLoader
+public static class EnvironmentSettingsLoader
 {
     public static ApiConfig LoadApiSettings()
     {
         string priceApiUrl = GetRequired("PRICE_API_URL");
         string pollingIntervalSeconds = GetRequired("POLLING_INTERVAL_SECONDS");
+        string apiToken = GetRequired("API_TOKEN");
 
         if (!int.TryParse(
                 pollingIntervalSeconds,
@@ -22,7 +23,8 @@ public class EnvironmentSettingsLoader
         return new ApiConfig
         {
             PriceApiUrl = priceApiUrl,
-            PollingIntervalSeconds = pollingInterval
+            PollingIntervalSeconds = pollingInterval,
+            ApiToken = apiToken
                 
         };
     }
