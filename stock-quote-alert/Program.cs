@@ -7,6 +7,7 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        DotNetEnv.Env.Load("Config/.env");
         ApiConfig enviromentVariables;
         try
         {
@@ -36,7 +37,7 @@ class Program
             Timeout = TimeSpan.FromSeconds(30)
         };
         IStockPriceFetcher fetcher =
-            new YahooFinanceStockPriceFetcher(httpClient);
+            new BrapiStockPriceFetcher(httpClient);
         StockPriceAlertService service =
             new StockPriceAlertService(fetcher);
         await service.MonitorAlertsAsync(requestData);
