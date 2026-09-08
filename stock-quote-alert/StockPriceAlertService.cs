@@ -4,59 +4,70 @@ public class StockPriceAlertService
 {
     private readonly IStockPriceFetcher _priceFetcher;
     private readonly int _pollingIntervalSeconds;
+    private readonly IAlertService _alertService;
 
-    public StockPriceAlertService(IStockPriceFetcher priceFetcher, int  pollingIntervalSeconds)
+    public StockPriceAlertService(IStockPriceFetcher priceFetcher, IAlertService alertService,
+        int pollingIntervalSeconds)
     {
-        this._priceFetcher = priceFetcher;
-        this._pollingIntervalSeconds = pollingIntervalSeconds;
+        _priceFetcher = priceFetcher;
+        _pollingIntervalSeconds = pollingIntervalSeconds;
+        _alertService = alertService;
     }
 
-    private async Task CheckAlertAsync(List<StockPriceAlert> requestList)
+    private async Task CheckAlertAsync(List<StockPriceAlert> alerts)
     {
-        foreach (var request in requestList)
+        foreach (var alert in alerts)
         {
-            decimal actualPrice =
-                await _priceFetcher.GetPriceAsync(request.Ticker);
-            if (actualPrice <= request.BuyPriceReference)
+            decimal actualPrice;
+            try
             {
-                if (!request.AlreadySentAlert)
-                {
-                    Console.WriteLine(
-                        $"Time to buy price changed to {actualPrice} and the reference is {request.BuyPriceReference}");
-                    request.MarkAlertSent(true);
-                }
-
-                Console.WriteLine("BUY");
+                actualPrice =
+                    await _priceFetcher.GetPriceAsync(alert.Ticker);
             }
-            else if (actualPrice >= request.SellPriceReference)
+            catch (Exception e)
             {
-                if (!request.AlreadySentAlert)
+                Console.WriteLine(e.Message);
+                continue;
+            }
+
+            if (actualPrice <= alert.BuyPriceReference)
+            {
+                if (!alert.AlreadySentAlert)
                 {
                     Console.WriteLine(
-                        $"Time to sell price changed to {actualPrice} and the reference is {request.SellPriceReference}");
-                    request.MarkAlertSent(true);
+                        $"Time to buy price changed to {actualPrice} and the reference is {alert.BuyPriceReference}");
+                    alert.MarkAlertAsSent();
+                    await _alertService.SendAlertAsync(alert.Ticker, actualPrice, "BUY");
                 }
-
-                Console.WriteLine("SELL");
+            }
+            else if (actualPrice >= alert.SellPriceReference)
+            {
+                if (!alert.AlreadySentAlert)
+                {
+                    Console.WriteLine(
+                        $"Time to sell price changed to {actualPrice} and the reference is {alert.SellPriceReference}");
+                    alert.MarkAlertAsSent();
+                    await _alertService.SendAlertAsync(alert.Ticker, actualPrice, "SELL");
+                }
             }
 
             else
             {
-                request.MarkAlertSent(false);
+                alert.ResetAlert();
             }
         }
     }
 
-    public async Task MonitorAlertsAsync(List<StockPriceAlert> requestList)
+    public async Task MonitorAlertsAsync(List<StockPriceAlert> alerts)
     {
         using PeriodicTimer timer =
             new(TimeSpan.FromSeconds(_pollingIntervalSeconds));
 
-        await CheckAlertAsync(requestList);
-        
+        await CheckAlertAsync(alerts);
+
         while (await timer.WaitForNextTickAsync())
         {
-            await CheckAlertAsync(requestList);
+            await CheckAlertAsync(alerts);
         }
     }
 }
