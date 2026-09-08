@@ -10,9 +10,14 @@ public class StockPriceAlert
 
     public bool AlreadySentAlert { get; private set; } = false;
 
-    public void MarkAlertSent(bool alert)
+    public void MarkAlertAsSent()
     {
-        AlreadySentAlert = alert;
+        AlreadySentAlert = true;
+    }
+
+    public void ResetAlert()
+    {
+        AlreadySentAlert = false;
     }
 }
 
