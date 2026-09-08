@@ -6,12 +6,12 @@ namespace stock_quote_alert;
 
 public class BrapiStockPriceFetcher : IStockPriceFetcher
 {
-    private readonly HttpClient httpClient;
+    private readonly HttpClient _httpClient;
     private const int MaxRetries = 3;
 
     public BrapiStockPriceFetcher(HttpClient httpClient)
     {
-        this.httpClient = httpClient;
+        _httpClient = httpClient;
     }
 
     public async Task<decimal> GetPriceAsync(string symbol)
@@ -20,7 +20,8 @@ public class BrapiStockPriceFetcher : IStockPriceFetcher
         {
             try
             {
-                using HttpResponseMessage response = await httpClient.GetAsync($"api/v2/stocks/quote?symbols={symbol}");
+                using HttpResponseMessage
+                    response = await _httpClient.GetAsync($"api/v2/stocks/quote?symbols={symbol}");
                 int responseStatusCode = (int)response.StatusCode;
                 bool shouldRetry = responseStatusCode >= 500 || response.StatusCode == HttpStatusCode.TooManyRequests;
                 if (response.IsSuccessStatusCode)
@@ -50,20 +51,18 @@ public class BrapiStockPriceFetcher : IStockPriceFetcher
 
                     return price;
                 }
-                else if (shouldRetry && index < MaxRetries)
+
+                if (!shouldRetry)
+                {
+                    throw new InvalidOperationException(
+                        $"API error for {symbol}: " +
+                        $"{response.StatusCode} - {response.ReasonPhrase}");
+                }
+
+                if (index < MaxRetries)
                 {
                     await Task.Delay(
                         TimeSpan.FromSeconds(index));
-                    continue;
-                }
-                else if (shouldRetry && index == MaxRetries)
-                {
-                    throw new HttpRequestException($"\"All retries failed while getting ticker {symbol}.");
-                }
-                else if (!shouldRetry)
-                {
-                    throw new InvalidOperationException(
-                        $"API ERROR on getting ticker: {symbol} status code {response.StatusCode}: {response.ReasonPhrase ?? "Not informed"}.");
                 }
             }
             catch (HttpRequestException error)
@@ -83,7 +82,7 @@ public class BrapiStockPriceFetcher : IStockPriceFetcher
                 if (index == MaxRetries)
                 {
                     throw new HttpRequestException(
-                        $"All retries failed while getting ticker: {symbol}.",
+                        $"All retries failed with timeout while getting ticker: {symbol}.",
                         error);
                 }
 
@@ -91,6 +90,7 @@ public class BrapiStockPriceFetcher : IStockPriceFetcher
             }
         }
 
-        throw new HttpRequestException($"\"All retries failed while getting ticker {symbol}.");
+        throw new InvalidOperationException(
+            $"All retries failed while getting ticker {symbol}.");
     }
 }
