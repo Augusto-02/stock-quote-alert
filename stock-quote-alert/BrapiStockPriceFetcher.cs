@@ -1,13 +1,13 @@
-﻿namespace stock_quote_alert;
+namespace stock_quote_alert;
 
 using System.Net;
 
-public class YahooFinanceStockPriceFetcher : IStockPriceFetcher
+public class BrapiStockPriceFetcher : IStockPriceFetcher
 {
     private readonly HttpClient httpClient;
     private const int MaxRetries = 3;
 
-    public YahooFinanceStockPriceFetcher(HttpClient httpClient)
+    public BrapiStockPriceFetcher(HttpClient httpClient)
     {
         this.httpClient = httpClient;
     }
@@ -68,3 +68,4 @@ public class YahooFinanceStockPriceFetcher : IStockPriceFetcher
         throw new HttpRequestException($"\"All retries failed while getting ticker {symbol}.");
     }
 }
+

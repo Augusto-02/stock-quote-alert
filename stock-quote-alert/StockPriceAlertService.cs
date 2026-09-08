@@ -27,6 +27,7 @@ public class StockPriceAlertService
                             $"Time to buy price changed to {actualPrice} and the reference is {request.BuyPriceReference}");
                         request.MarkAlertSent(true);
                     }
+                    Console.WriteLine("BUY");
                 }
                 else if (actualPrice >= request.SellPriceReference)
                 {
@@ -36,6 +37,7 @@ public class StockPriceAlertService
                             $"Time to sell price changed to {actualPrice} and the reference is {request.SellPriceReference}");
                         request.MarkAlertSent(true);
                     }
+                    Console.WriteLine("SELL");
                 }
 
                 else
