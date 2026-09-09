@@ -55,15 +55,24 @@ public class EmailAlertService : IAlertService
                         </html>
                         """;
 
-        using SmtpClient smtpClient = new(
-            _settings.Host,
-            _settings.Port);
+        try
+        {
+            using SmtpClient smtpClient = new(
+                _settings.Host,
+                _settings.Port);
 
-        smtpClient.EnableSsl = true;
-        smtpClient.Credentials = new NetworkCredential(
-            _settings.Username,
-            _settings.Password);
+            smtpClient.EnableSsl = true;
+            smtpClient.Credentials = new NetworkCredential(
+                _settings.Username,
+                _settings.Password);
 
-        await smtpClient.SendMailAsync(message);
+            await smtpClient.SendMailAsync(message);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine(
+                $"Failed to send the {alertType} alert for " +
+                $"ticker {ticker}: {error.Message}");
+        }
     }
 }
