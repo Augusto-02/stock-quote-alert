@@ -14,7 +14,7 @@ public class StockPriceAlertService
         _alertService = alertService;
     }
 
-    private async Task CheckAlertAsync(List<StockPriceAlert> alerts)
+    internal async Task CheckAlertAsync(List<StockPriceAlert> alerts)
     {
         foreach (var alert in alerts)
         {
