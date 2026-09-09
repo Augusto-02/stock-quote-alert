@@ -20,7 +20,10 @@ class Program
             return;
         }
 
-        string request = Console.ReadLine();
+        string request = args.Length > 0
+            ? string.Join(" ", args)
+            : Console.ReadLine() ?? string.Empty;
+
         List<StockPriceAlert> requestData = new List<StockPriceAlert>();
         try
         {
@@ -43,7 +46,7 @@ class Program
             new BrapiStockPriceFetcher(httpClient);
         IAlertService alertService = new EmailAlertService(environmentVariables.Smtp);
         StockPriceAlertService service =
-            new StockPriceAlertService(fetcher, alertService ,environmentVariables.Api.PollingIntervalSeconds);
+            new StockPriceAlertService(fetcher, alertService, environmentVariables.Api.PollingIntervalSeconds);
         await service.MonitorAlertsAsync(requestData);
     }
 }
