@@ -34,20 +34,16 @@ public class StockPriceAlertService
             {
                 if (!alert.AlreadySentAlert)
                 {
-                    Console.WriteLine(
-                        $"Time to buy price changed to {actualPrice} and the reference is {alert.BuyPriceReference}");
-                    alert.MarkAlertAsSent();
                     await _alertService.SendAlertAsync(alert.Ticker, actualPrice, "BUY");
+                    alert.MarkAlertAsSent();
                 }
             }
             else if (actualPrice >= alert.SellPriceReference)
             {
                 if (!alert.AlreadySentAlert)
                 {
-                    Console.WriteLine(
-                        $"Time to sell price changed to {actualPrice} and the reference is {alert.SellPriceReference}");
-                    alert.MarkAlertAsSent();
                     await _alertService.SendAlertAsync(alert.Ticker, actualPrice, "SELL");
+                    alert.MarkAlertAsSent();
                 }
             }
 
