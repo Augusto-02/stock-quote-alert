@@ -4,7 +4,7 @@
 public class ApiConfig
 {
     public required string PriceApiUrl { get; init; }
-    public required int PollingIntervalSeconds { get; init; } = 30;
+    public required int PollingIntervalSeconds { get; init; } = 300;
     
     public required string ApiToken { get; init; }
 }
