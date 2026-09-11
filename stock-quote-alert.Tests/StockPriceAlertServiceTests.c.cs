@@ -6,6 +6,37 @@ using Xunit;
 
 public class StockPriceAlertServiceTests
 {
+    [Theory]
+    [InlineData(18, "BUY")]
+    [InlineData(32, "SELL")]
+    public async Task ShouldRetryFailedAlertAndContinueProcessingOtherTickers(decimal price, string alertType)
+    {
+        var fetcher = new Mock<IStockPriceFetcher>();
+        var alertService = new Mock<IAlertService>();
+        fetcher.Setup(x => x.GetPriceAsync(It.IsAny<string>())).ReturnsAsync(price);
+        alertService.SetupSequence(x => x.SendAlertAsync("PETR4", price, alertType))
+            .ThrowsAsync(new System.Net.Mail.SmtpException("SMTP unavailable"))
+            .Returns(Task.CompletedTask);
+        alertService.Setup(x => x.SendAlertAsync("VALE3", price, alertType))
+            .Returns(Task.CompletedTask);
+        var failedAlert = CreateAlert("PETR4");
+        var otherAlert = CreateAlert("VALE3");
+        var service = CreateService(fetcher, alertService);
+        var alerts = new List<StockPriceAlert> { failedAlert, otherAlert };
+
+        await service.CheckAlertAsync(alerts);
+
+        Assert.False(failedAlert.AlreadySentAlert);
+        Assert.True(otherAlert.AlreadySentAlert);
+
+        await service.CheckAlertAsync(alerts);
+        Assert.True(failedAlert.AlreadySentAlert);
+        await service.CheckAlertAsync(alerts);
+
+        alertService.Verify(x => x.SendAlertAsync("PETR4", price, alertType), Times.Exactly(2));
+        alertService.Verify(x => x.SendAlertAsync("VALE3", price, alertType), Times.Once);
+    }
+
     [Fact]
     public async Task ShouldNotSendAlertWhenApiFails()
     {
