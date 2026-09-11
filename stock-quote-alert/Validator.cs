@@ -46,13 +46,13 @@ public static class StockPriceAlertParser
             decimal buyPrice;
             if (!ValidatePrices(inputSplitted[index + 1], out sellPrice))
             {
-                errorsList.Add($"Reference sell price of ticker: {ticker} is not valid");
+                errorsList.Add($"Reference sell price of ticker: {ticker} is not valid. Use a positive number with a dot as decimal separator and no thousands separators.");
                 errors = true;
             }
 
             if (!ValidatePrices(inputSplitted[index + 2], out buyPrice))
             {
-                errorsList.Add($"Reference buy price of ticker: {ticker} is not valid");
+                errorsList.Add($"Reference buy price of ticker: {ticker} is not valid. Use a positive number with a dot as decimal separator and no thousands separators.");
                 errors = true;
             }
 
@@ -86,7 +86,7 @@ public static class StockPriceAlertParser
     {
         return decimal.TryParse(
             priceText,
-            NumberStyles.Number,
+            NumberStyles.Number & ~NumberStyles.AllowThousands,
             CultureInfo.InvariantCulture,
             out price) && price > 0;
     }
