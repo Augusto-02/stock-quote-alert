@@ -34,16 +34,14 @@ public class StockPriceAlertService
             {
                 if (!alert.AlreadySentAlert)
                 {
-                    await _alertService.SendAlertAsync(alert.Ticker, actualPrice, "BUY");
-                    alert.MarkAlertAsSent();
+                    await SendAlertAndMarkAsync(alert, actualPrice, "BUY");
                 }
             }
             else if (actualPrice >= alert.SellPriceReference)
             {
                 if (!alert.AlreadySentAlert)
                 {
-                    await _alertService.SendAlertAsync(alert.Ticker, actualPrice, "SELL");
-                    alert.MarkAlertAsSent();
+                    await SendAlertAndMarkAsync(alert, actualPrice, "SELL");
                 }
             }
 
@@ -51,6 +49,21 @@ public class StockPriceAlertService
             {
                 alert.ResetAlert();
             }
+        }
+    }
+
+    private async Task SendAlertAndMarkAsync(StockPriceAlert alert, decimal actualPrice, string alertType)
+    {
+        try
+        {
+            await _alertService.SendAlertAsync(alert.Ticker, actualPrice, alertType);
+            alert.MarkAlertAsSent();
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine(
+                $"Failed to send the {alertType} alert for " +
+                $"ticker {alert.Ticker}: {error.Message}");
         }
     }
 
