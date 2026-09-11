@@ -14,15 +14,21 @@ Short polling is used because the free brapi.dev API may update stock prices wit
 
 ### Configuration
 
-1. Copy `stock-quote-alert/Config/.env.example` to `stock-quote-alert/Config/.env`.
-2. Fill in the required environment variables.
-3. Run the application from the project directory:
+1. Open a terminal in the project directory, the directory containing the solution and project files. If necessary, navigate to the inner `stock-quote-alert` folder:
+
+```bash
+cd path/to/stock-quote-alert/stock-quote-alert
+```
+
+2. Copy `Config/.env.example` to `Config/.env`.
+3. Fill in the required environment variables.
+4. Run the application from this directory:
 
 ```bash
 dotnet run
 ```
 
-4. Enter one or more stock alerts in the following format:
+5. Enter one or more stock alerts in the following format:
 
 ```text
 TICKER SELL_PRICE BUY_PRICE
@@ -54,7 +60,7 @@ The application loads variables from `Config/.env` using `DotNetEnv`. Do not com
 
 ```env
 PRICE_API_URL=https://brapi.dev/
-POLLING_INTERVAL_SECONDS=300
+POLLING_INTERVAL_SECONDS=30
 API_TOKEN=your-brapi-token
 
 SMTP_HOST=smtp.gmail.com
@@ -106,3 +112,7 @@ IAlertService
   └── EmailAlertService
       └── sends notifications through SMTP
 ```
+
+## Use of AI
+
+AI tools were used during development to assist with C# syntax, review the code, and write the unit tests. The models used were GPT-5.6 Luna and GPT-5.6 Sol.
